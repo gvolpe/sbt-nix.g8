@@ -4,7 +4,7 @@
 }:
 
 let
-  pkgs = import ../../../pkgs.nix { inherit jdk; };
+  pkgs = import ../../../nix/pkgs.nix { inherit jdk; };
   base = pkgs.callPackage ./base.nix { inherit pkgs jre; };
 in
   pkgs.writeShellScriptBin "build" ''
