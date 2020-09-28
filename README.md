@@ -258,7 +258,7 @@ Overall, we can say our `pkgs.nix` defines a function that expects a `jdk` argum
 ```nix
 { jdk ? "jdk11" }:
 
-pkgs = import ./pkgs.nix { inherit jdk; };
+import ./pkgs.nix { inherit jdk; }
 ```
 
 It means that if no other value is given, we will use `jdk11` by default.
