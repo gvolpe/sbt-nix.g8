@@ -5,7 +5,7 @@
 
 let
   pkgs = import ../../../nix/pkgs.nix { inherit jdk; };
-  base = pkgs.callPackage ./base.nix { inherit pkgs jre; };
+  base = pkgs.callPackage ../../../nix/docker.nix { inherit jdk jre pkgs; };
 in
   pkgs.writeShellScriptBin "build" ''
     cd ../../

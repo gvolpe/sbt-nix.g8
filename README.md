@@ -1,36 +1,32 @@
 # sbt-nix-bootstrap
 
-Maybe include some introduction, screenshot of the Twitter poll and links to my talks.
+Get started with Nix and see how you can benefit from it in your Scala or cross-team projects.
 
 ## What is Nix?
 
-[Nix](https://nixos.org/) is a functional package manager [EXPAND].
+Quoting the [official website](https://nixos.org/):
 
-https://nixos.org/learn.html
+> A powerful package manager for Linux and other Unix systems that makes package management reliable and reproducible. Share your development and build environments across different machines.
 
-### Install Nix
+*Reproducibility* is probably the best feature Nix has to offer. It is widely used in other ecosystems, such as Haskell, Python, Rust and Go, but barely used (and known) in the Scala community, as reflected in the results of the poll I ran on Twitter.
 
-You are only a command away (unless you are on NixOS):
+I started writing this guide with examples because *I am on a mission to change the current situation.*
+
+## Install Nix
+
+You are only a command away (unless you are on NixOS), as [officially documented](https://nixos.org/download.html).
 
 ```
 curl -L https://nixos.org/nix/install | sh
 ```
 
-More details at: https://nixos.org/download.html
+## Use cases
 
-## Reproducibility
+There three clear use cases where I think Nix can make a difference in Scala projects.
 
-The most popular use of Nix is for creating *reproducible development environments* that work across different machines and platforms (e.g. `darwin`, `linux`).
+### Reproducible development shell
 
-TODO: Explain how multiple teams can share a single `shell.nix` (e.g. frontend and backend teams).
-
-It is appealing for new members joining the team. On day one, all they need to do is to git-clone the project, install Nix, run `nix-shell` and all the project's dependencies will become available. It sounds like magic!
-
-### Avoid global installation of Java & Sbt
-
-Instead of installing binaries from the web, let Nix manage your dependencies. This is crucial when working in big teams. We will no longer hear "it compiles on my machine".
-
-Here's an example of a simple `shell.nix` that has two dependencies: `jdk11` and `sbt`.
+All the project's dependencies are declared in a `shell.nix` file. For example, `jdk`, `sbt` and `jekyll` (if a microsite depends on it).
 
 ```nix
 { jdk ? "jdk11" }:
@@ -46,17 +42,140 @@ in
   }
 ```
 
-Where `pkgs.nix` defines an *exact* version of the Nixpkgs (more on this later). The important part is that every member of the team will have access to the same JDK version.
+Where `pkgs.nix` defines an *exact* version of the Nixpkgs (more on this later). The important part is that every member of the team will have access to the same `jdk` and `sbt` version.
 
-To access the software declared in `shell.nix`, we only need to run `nix-shell`.
+**Avoid global installation of Java & Sbt**
 
-## Use cases
+> Instead of installing binaries from the web, let Nix manage your dependencies. This is crucial when working in big teams. We will no longer hear "it compiles on my machine".
 
-- Dev shell with dependencies (can include things like `jekyll` for microsites, etc).
-- Same dev shell to run on CI build (even with a matrix of Java versions).
-- Same JRE to create Docker image (reproducibility, and also smaller images).
+The benefit is even greater if you work on cross-teams where everybody shares the same `shell.nix` to run the full application. For example, at work we declare all the dependencies for frontend, backend and infrastructure such as `jdk`, `nodejs` and `kubectl`, among others.
 
-## Docker images
+It is very appealing for new members joining the team! On day one, all they need to do is to git-clone the project, install Nix, run `nix-shell` and all the project's dependencies will become available. Isn't that great?
+
+We can also use [nix-direnv](https://github.com/nix-community/nix-direnv) so that we don't even need to run `nix-shell`. Upon entering a working directory with a `shell.nix`, all the declared software will become automatically available. Magic! In fairness, this is what we promote using at work.
+
+### Reproducible CI builds
+
+We can use the exact same dependencies declared in `shell.nix` on the CI build. No more discrepancies.
+
+![ci](imgs/ci-nix.png)
+
+Have a look at [.github/workflows/ci.yml](.github/workflows/ci.yml) to see how it looks like. It couldn't be simpler!
+
+### Reproducible (and smaller) Docker images
+
+Most of Scala projects nowadays are deployed as a Docker image (sometimes using Kubernetes). Although there are tools such as `sbt-native-packager`, we can again declare what dependencies make it to our Docker image. The clear two benefits is that we get to use the exact same JDK / JRE we declare in our Nix file, and that the resulting image will more likely be smaller than using a base slim image from Docker Hub.
+
+We can still use `sbt-native-packaer` to create our Docker images, as demonstrated in the examples below. Another option is to use `sbt-assembly` and some declarative definition of our Dockerfile.
+
+#### Default Docker image using sbt-native-packager
+
+This module shows how users normally use `sbt-native-packager` to create Docker images. It uses `openjdk:11.0.8-jre-slim` as the base Docker image.
+
+```
+sbt "sbt-nix-native-default/docker:publishLocal"
+docker run -it sbt-nix-bootstrap-default:0.1.0-SNAPSHOT
+```
+
+Here's the resulting Docker image, including the jar dependencies declared in our `build.sbt`.
+
+```
+REPOSITORY                  TAG                            IMAGE ID            CREATED             SIZE
+sbt-nix-bootstrap-default   0.1.0-SNAPSHOT                 c0320ed1b643        2 minutes ago       221MB
+```
+
+This is the default and it doesn't use Nix at all.
+
+#### Custom Nix Docker image using sbt-native-packager
+
+We could benefit from Nix by creating a base Docker image using the *exact same `jdk`* we declare in our project, and still use `sbt-native-packager` to make the final image.
+
+```nix
+{ imgName ? "base-jre"
+, jdk ? "adoptopenjdk-openj9-bin-11"
+, jre ? "adoptopenjdk-jre-openj9-bin-11"
+}:
+
+let
+  pkgs = import ./pkgs.nix { inherit jdk; };
+in
+  pkgs.dockerTools.buildLayeredImage {
+    name      = imgName;
+    tag       = "latest";
+    contents  = [ pkgs.${jre} ];
+  }
+```
+
+Run it as follows:
+
+```
+nix-build nix/docker.nix -o result-base-jre
+docker load -i result-base-jre
+sbt "sbt-nix-native-custom/docker:publishLocal"
+docker run -it sbt-nix-bootstrap-custom:0.1.0-SNAPSHOT
+```
+
+The resulting Docker image is 42MB smaller than the default!
+
+```
+REPOSITORY                  TAG                            IMAGE ID            CREATED             SIZE
+sbt-nix-bootstrap-custom    0.1.0-SNAPSHOT                 94e713b3fa0d        6 seconds ago       179MB
+base-jre                    latest                         58028d3adc50        50 years ago        163MB
+```
+
+#### Custom Nix Docker image using sbt-assembly
+
+Although a bit more manual, this approach also works using other build tools such as Mill, which natively provides an `assembly` command to create a fat jar.
+
+First of all, we need a basic `Dockerfile`.
+
+```docker
+FROM base-jre:latest
+COPY app.jar /app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+```
+
+Then we will create a shell-script with Nix.
+
+```nix
+{ imgName ? "sbt-nix-assembly"
+, jdk ? "adoptopenjdk-openj9-bin-11"
+, jre ? "adoptopenjdk-jre-openj9-bin-11"
+}:
+
+let
+  pkgs = import ../../../nix/pkgs.nix { inherit jdk; };
+  base = pkgs.callPackage ../../../nix/docker.nix { inherit jdk jre pkgs; };
+in
+  pkgs.writeShellScriptBin "build" ''
+    cd ../../
+    ${pkgs.sbt}/bin/sbt "sbt-nix-assembly/assembly"
+    cd modules/assembly/
+    docker load -i ${base}
+    cp target/scala-2.13/app.jar nix/app.jar
+    docker build -t ${imgName} nix/
+    rm nix/app.jar
+  ''
+```
+
+The result will be a shell-script that will run the `assembly` command and build our Docker image. Under `modules/assembly`, you will find a `build.sh` script that does it all but you could as well do it manually since it only runs two commands.
+
+```shell
+#! /usr/bin/env bash
+nix-build nix/app.nix
+result/bin/build
+```
+
+You can run it as follows:
+
+```shell
+cd modules/assembly/ && ./build.sh
+docker run -it sbt-nix-assembly:latest
+```
+
+#### Docker images
+
+To recap, here are all the different Docker images shown in the examples, for an easy comparison.
 
 ```
 REPOSITORY                  TAG                            IMAGE ID            CREATED             SIZE
@@ -64,25 +183,4 @@ sbt-nix-bootstrap-custom    0.1.0-SNAPSHOT                 94e713b3fa0d        6
 sbt-nix-bootstrap-default   0.1.0-SNAPSHOT                 c0320ed1b643        2 minutes ago       221MB
 sbt-nix-assembly            latest                         61b30afca2fc        9 minutes ago       179MB
 base-jre                    latest                         58028d3adc50        50 years ago        163MB
-```
-
-### Custom Nix Docker image using sbt-assembly
-
-```
-cd modules/assembly/ && ./build.sh
-docker run -it sbt-nix-assembly:latest
-```
-
-### Default Docker image using sbt-native-packager
-
-```
-sbt "sbt-nix-native-default/docker:publishLocal"
-docker run -it sbt-nix-bootstrap-default:0.1.0-SNAPSHOT
-```
-
-### Custom Nix Docker image using sbt-native-packager
-
-```
-sbt "sbt-nix-native-custom/docker:publishLocal"
-docker run -it sbt-nix-bootstrap-custom:0.1.0-SNAPSHOT
 ```
