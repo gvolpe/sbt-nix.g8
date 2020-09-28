@@ -1,5 +1,5 @@
 { imgName ? "sbt-nix-assembly"
-, jdk ? "adoptopenjdk-openj9-bin-11"
+, jdk ? "jdk11"
 , jre ? "adoptopenjdk-jre-openj9-bin-11"
 }:
 
