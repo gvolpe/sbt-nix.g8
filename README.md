@@ -3,20 +3,19 @@
 Get started with Nix and see how you can benefit from it in your Scala or cross-team projects.
 
 <!--ts-->
-   * [sbt-nix-bootstrap](#sbt-nix-bootstrap)
-      * [Motivation](#motivation)
-      * [What is Nix?](#what-is-nix)
-      * [Install Nix](#install-nix)
-      * [Use cases](#use-cases)
-         * [Reproducible development shell](#reproducible-development-shell)
-         * [Reproducible CI builds](#reproducible-ci-builds)
-         * [Reproducible (and smaller) Docker images](#reproducible-and-smaller-docker-images)
-            * [Default Docker image using sbt-native-packager](#default-docker-image-using-sbt-native-packager)
-            * [Custom Nix Docker image using sbt-native-packager](#custom-nix-docker-image-using-sbt-native-packager)
-            * [Custom Nix Docker image using sbt-assembly](#custom-nix-docker-image-using-sbt-assembly)
-            * [Docker images](#docker-images)
-      * [Pinning Nixpkgs](#pinning-nixpkgs)
-         * [Using sbt with a different JDK](#using-sbt-with-a-different-jdk)
+* [Motivation](#motivation)
+* [What is Nix?](#what-is-nix)
+* [Install Nix](#install-nix)
+* [Use cases](#use-cases)
+   * [Reproducible development shell](#reproducible-development-shell)
+   * [Reproducible CI builds](#reproducible-ci-builds)
+   * [Reproducible (and smaller) Docker images](#reproducible-and-smaller-docker-images)
+      * [Default Docker image using sbt-native-packager](#default-docker-image-using-sbt-native-packager)
+      * [Custom Nix Docker image using sbt-native-packager](#custom-nix-docker-image-using-sbt-native-packager)
+      * [Custom Nix Docker image using sbt-assembly](#custom-nix-docker-image-using-sbt-assembly)
+      * [Docker images](#docker-images)
+* [Pinning Nixpkgs](#pinning-nixpkgs)
+   * [Using sbt with a different JDK](#using-sbt-with-a-different-jdk)
 
 <!-- Added by: gvolpe, at: Mon 28 Sep 2020 12:30:34 PM CEST -->
 
