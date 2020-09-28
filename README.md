@@ -2,15 +2,21 @@
 
 Get started with Nix and see how you can benefit from it in your Scala or cross-team projects.
 
+## Motivation
+
+I started out writing this guide with examples, motivated by the results of the following Twitter poll ran on September 2020.
+
+[ADD POLL SCREENSHOT]
+
+I believe Nix is the way forward, as well as functional programming, so *I am on a mission to change the current situation* and spread the good word about it.
+
 ## What is Nix?
 
 Quoting the [official website](https://nixos.org/):
 
 > A powerful package manager for Linux and other Unix systems that makes package management reliable and reproducible. Share your development and build environments across different machines.
 
-*Reproducibility* is probably the best feature Nix has to offer. It is widely used in other ecosystems, such as Haskell, Python, Rust and Go, but barely used (and known) in the Scala community, as reflected in the results of the poll I ran on Twitter.
-
-I started writing this guide with examples because *I am on a mission to change the current situation.*
+*Reproducibility* is probably the best feature Nix has to offer. It is widely used in other ecosystems, such as Haskell, Python, Rust and Go, but barely used (and known) in the Scala community.
 
 ## Install Nix
 
