@@ -131,6 +131,10 @@ sbt-nix-bootstrap-custom    0.1.0-SNAPSHOT                 94e713b3fa0d        6
 base-jre                    latest                         58028d3adc50        50 years ago        163MB
 ```
 
+Note: `base-jre` shows it was created 50 years ago but we can change that by adding a `created = "now"` to our image definition. However, by doing so, we would be breaking binary reproducibility.
+
+Learn more about creating Docker images with Nix at https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-dockerTools
+
 #### Custom Nix Docker image using sbt-assembly
 
 Although a bit more manual, this approach also works using other build tools such as Mill, which natively provides an `assembly` command to create a fat jar.
