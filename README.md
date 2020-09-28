@@ -62,6 +62,8 @@ We can use the exact same dependencies declared in `shell.nix` on the CI build. 
 
 Have a look at [.github/workflows/ci.yml](.github/workflows/ci.yml) to see how it looks like. It couldn't be simpler!
 
+In fairness, we use `nix/ci.nix` to run the CI build, which is a version of `shell.nix` that only contains the `sbt` package. The idea is that we can keep adding packages to our `shell.nix` for local development, and there might be stuff we don't need at all in the CI, so it will run faster with less dependencies to pull.
+
 ### Reproducible (and smaller) Docker images
 
 Most of Scala projects nowadays are deployed as a Docker image (sometimes using Kubernetes). Although there are tools such as `sbt-native-packager`, we can again declare what dependencies make it to our Docker image. The clear two benefits is that we get to use the exact same JDK / JRE we declare in our Nix file, and that the resulting image will more likely be smaller than using a base slim image from Docker Hub.
@@ -184,3 +186,66 @@ sbt-nix-bootstrap-default   0.1.0-SNAPSHOT                 c0320ed1b643        2
 sbt-nix-assembly            latest                         61b30afca2fc        9 minutes ago       179MB
 base-jre                    latest                         58028d3adc50        50 years ago        163MB
 ```
+
+## Pinning Nixpkgs
+
+In previous Nix files, we were referencing a file named `pkgs.nix`. This is where we define what version on Nixpkgs we want to use in our project.
+
+Whenever you install Nix, you'll have something called [channels](https://nixos.wiki/wiki/Nix_channels). Using Channels is not recommended because it goes against reproducible builds but they are useful to try things out on Nix. So instead of using a channel, we will "pin" the Nixpkgs to a specific version, indicated by a URL and a hash (`sha256`).
+
+```nix
+{ jdk }:
+
+let
+  nixpkgs = fetchTarball {
+    name   = "nixos-unstable-2020-09-25";
+    url    = "https://github.com/NixOS/nixpkgs-channels/archive/72b9660dc18b.tar.gz";
+    sha256 = "1cqgpw263bz261bgz34j6hiawi4hi6smwp6981yz375fx0g6kmss";
+  };
+
+  config = {
+    packageOverrides = p: {
+      sbt = p.sbt.override {
+        jre = p.${jdk};
+      };
+    };
+  };
+
+  pkgs = import nixpkgs { inherit config; };
+in
+  pkgs
+```
+
+Let's explain what's going on here.
+
+- `fetchTarball` is one of the [many built-in functions](https://nixos.org/manual/nix/stable/#ssec-builtins).
+- `url` will always be the same, except for the last part. That `72b9660dc18b` is a commit hash. To find out the latest, you can look [here](https://status.nixos.org/).
+- `sha256` is calculated from the `tar.gz` file. You can run `nix-prefetch --unpack [URL]` to get it.
+
+We also have a `config` that overrides the `sbt` package to use the `jdk` version given as an argument. `sbt` comes with a default `jdk` version by default.
+
+Overall, we can say our `pkgs.nix` defines a function that expects a `jdk` argument . This is how we've seen it used before.
+
+```nix
+{ jdk ? "jdk11" }:
+
+pkgs = import ./pkgs.nix { inherit jdk; };
+```
+
+It means that if no other value is given, we will use `jdk11` by default.
+
+### Using sbt with a different JDK
+
+Since our `shell.nix` defines an argument with a default value:
+
+```nix
+{ jdk ? "jdk11" }:
+```
+
+We will always use `jdk11` when running `nix-shell`. In order to change that, we can supply the argument as follows:
+
+```shell
+nix-shell --argstr jdk jdk14
+```
+
+In fact, this is what we do in the CI build to get `sbt` to run our project with the desired JDK version.
