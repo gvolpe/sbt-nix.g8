@@ -6,7 +6,7 @@ in
   pkgs.mkShell {
     buildInputs = [
       pkgs.coursier
-      pkgs.${jdk}
+      pkgs.\${jdk}
       pkgs.sbt
     ];
   }

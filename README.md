@@ -332,4 +332,10 @@ nix-shell -p sbt
 sbt new gvolpe/sbt-nix.g8
 ```
 
+You can actually do it in a single command.
+
+```shell
+nix-shell -p sbt --run "sbt new gvolpe/sbt-nix.g8"
+```
+
 Once we have created the project, follow the instructions in the README file to continue.

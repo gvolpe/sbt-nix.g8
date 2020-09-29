@@ -10,7 +10,7 @@ let
   config = {
     packageOverrides = p: {
       sbt = p.sbt.override {
-        jre = p.${jdk};
+        jre = p.\${jdk};
       };
     };
   };
