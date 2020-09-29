@@ -5,6 +5,7 @@ let
 in
   pkgs.mkShell {
     buildInputs = [
+      pkgs.coursier
       pkgs.${jdk}
       pkgs.sbt
     ];

@@ -1,4 +1,4 @@
-# sbt-nix-bootstrap
+# sbt-nix.g8
 
 Get started with Nix and see how you can benefit from it in your Scala or cross-team projects.
 
@@ -16,8 +16,10 @@ Get started with Nix and see how you can benefit from it in your Scala or cross-
       * [Docker images](#docker-images)
 * [Pinning Nixpkgs](#pinning-nixpkgs)
    * [Using sbt with a different JDK](#using-sbt-with-a-different-jdk)
+* [Caching sbt derivations](#caching-sbt-derivations)
+* [Get started with sbt-nix.g8](#get-started-with-sbt-nixg8)
 
-<!-- Added by: gvolpe, at: Mon 28 Sep 2020 12:30:34 PM CEST -->
+<!-- Added by: gvolpe, at: Tue 29 Sep 2020 10:46:21 AM CEST -->
 
 <!--te-->
 
@@ -51,7 +53,7 @@ There three clear use cases where I think Nix can make a difference in Scala pro
 
 ### Reproducible development shell
 
-All the project's dependencies are declared in a `shell.nix` file. For example, `jdk`, `sbt` and `jekyll` (if a microsite depends on it).
+All the project's dependencies are declared in a `shell.nix` file. For example, `jdk`, `sbt`, `coursier`, and `jekyll` (if a microsite depends on it).
 
 ```nix
 { jdk ? "jdk11" }:
@@ -61,15 +63,16 @@ let
 in
   pkgs.mkShell {
     buildInputs = [
+      pkgs.coursier
       pkgs.${jdk}
       pkgs.sbt
     ];
   }
 ```
 
-Where `pkgs.nix` defines an *exact* version of the Nixpkgs (more on this later). The important part is that every member of the team will have access to the same `jdk` and `sbt` version.
+Where `pkgs.nix` defines an *exact* version of the Nixpkgs (more on this later). The important part is that every member of the team will have access to the exact same packages.
 
-**Avoid global installation of Java & Sbt**
+**Avoid global installation of Java, Sbt & any other binary**
 
 > Instead of installing binaries from the web, let Nix manage your dependencies. This is crucial when working in big teams. We will no longer hear "it compiles on my machine".
 
@@ -278,3 +281,55 @@ nix-shell --argstr jdk jdk14
 ```
 
 In fact, this is what we do in the CI build to get `sbt` to run our project with the desired JDK version.
+
+## Caching sbt derivations
+
+Nix derivations normally result in a binary, and `sbt` is not an exception. Since we override the default JDK version, every binary result is different, and so it can be cached so you don't have to build it again (and neither does the CI build). We can build the derivation via `nix-build`.
+
+```shell
+> nix-build nix/sbt.nix
+/nix/store/xyv3z73pfzkl390wk0bd68r8j24lvh4r-sbt-1.3.13
+
+> nix-build nix/sbt.nix --argstr jdk jdk8
+/nix/store/kw8q95qax89cm8v9g1n6vxqag7hjaycy-sbt-1.3.13
+
+> nix-build nix/sbt.nix --argstr jdk jdk14
+/nix/store/fiqmv96y4m9bmyaw84wp7jpx2i8kkwgy-sbt-1.3.13
+```
+
+Notice how every hash is different. The binary will be available by default under `result/bin/sbt`.
+
+There is a free service for open-source projects named [Cachix](https://cachix.org/), including support for [Github actions](https://github.com/cachix/cachix-action), where we can upload our binaries (result of a Nix derivation) so then everyone else can benefit from not having to build it again.
+
+Pushing a binary is fairly easy. Once you signed up and generate your signing key, you can pipe the output of a `nix-build` derivation directly to Cachix.
+
+```shell
+nix-build nix/sbt.nix | cachix push mycache
+```
+
+To use the binary cache, you need to run `cachix use mycache`. We are also using Cachix in our CI build.
+
+```yaml
+name: "Install Cachix ❄️"
+uses: cachix/cachix-action@v6
+with:
+  name: neutron
+  signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+```
+
+You can do the same, just make sure you change `neutron` for the name of your cache (creating one is free).
+
+We have seen how the `sbt` binary can be cached, though, this applies to any other binary. So next time you come across a derivation that results in a binary, know that you can cache it so your peers don't have to re-build it in their machines.
+
+## Get started with sbt-nix.g8
+
+We recommended above to not install `sbt` globally. However, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
+
+So to get started, this is all we need.
+
+```shell
+nix-shell -p sbt
+sbt new gvolpe/sbt-nix.g8
+```
+
+Once we have created the project, follow the instructions in the README file to continue.
