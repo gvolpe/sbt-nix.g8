@@ -339,3 +339,5 @@ nix-shell -p sbt --run "sbt new gvolpe/sbt-nix.g8"
 ```
 
 Once we have created the project, follow the instructions in the README file to continue.
+
+**Note**: the default template follows the approach demonstrated with the example `sbt-nix-native-custom` (recommended) but you can also checkout this repository and play around with the different examples.
