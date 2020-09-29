@@ -30,6 +30,10 @@ val assemblySettings = List(
   maintainer := "gvolpe@foo.com"
 )
 
+val licenseSettings = List(
+  licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
+)
+
 lazy val root = (project in file("."))
   .aggregate(
     `sbt-nix-assembly`,
@@ -46,6 +50,7 @@ lazy val `sbt-nix-assembly` = (project in file("modules/assembly"))
     )
   )
   .settings(assemblySettings: _*)
+  .settings(licenseSettings: _*)
 
 lazy val `sbt-nix-native-custom` = (project in file("modules/native-custom"))
   .enablePlugins(JavaAppPackaging)
@@ -57,6 +62,7 @@ lazy val `sbt-nix-native-custom` = (project in file("modules/native-custom"))
     )
   )
   .settings(nixDockerSettings: _*)
+  .settings(licenseSettings: _*)
 
 lazy val `sbt-nix-native-default` = (project in file("modules/native-default"))
   .enablePlugins(JavaAppPackaging)
@@ -68,3 +74,4 @@ lazy val `sbt-nix-native-default` = (project in file("modules/native-default"))
     )
   )
   .settings(defaultDockerSettings: _*)
+  .settings(licenseSettings: _*)
