@@ -6,7 +6,7 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "$organization$"
 
 val nixDockerSettings = List(
-  name := "sbt-nix-bootstrap-custom",
+  name := "sbt-nix-$name$",
   dockerCommands := Seq(
     Cmd("FROM", "base-jre:latest"),
     Cmd("COPY", "1/opt/docker/lib/*.jar", "/lib/"),
