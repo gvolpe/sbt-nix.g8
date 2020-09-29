@@ -1,0 +1,34 @@
+name: sbt-nix-derivation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "nix/pkgs.nix"
+      - "nix/sbt.nix"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        java:
+          - jdk8
+          - jdk11
+          - jdk14
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      - name: "Install Nix ❄️"
+        uses: nixbuild/nix-quick-install-action@v2
+
+      - name: "Install Cachix ❄️"
+        uses: cachix/cachix-action@v6
+        with:
+          name: neutron
+          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+
+      - name: "Build sbt derivation with ${{ matrix.java }} 🚀"
+        run: nix-build --argstr jdk "${{ matrix.java }}" nix/sbt.nix | cachix push neutron
