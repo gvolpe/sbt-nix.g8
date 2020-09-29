@@ -25,11 +25,11 @@ Get started with Nix and see how you can benefit from it in your Scala or cross-
 
 ## Motivation
 
-I started out writing this guide with examples, motivated by the results of the following Twitter poll ran on September 2020.
+I started out writing this guide with examples after I ran a Twitter poll on September 2020.
 
-[ADD POLL SCREENSHOT]
+[!poll]()
 
-I believe Nix is the way forward, as well as functional programming, so *I am on a mission to change the current situation* and spread the good word about it.
+The results speak for themselves but I am on a mission to change the current situation because I believe Nix and functional programming are the way forward. If you would like to help, share this guide with as many people as you can, give it a ⭐ and spread the good word!
 
 ## What is Nix?
 
