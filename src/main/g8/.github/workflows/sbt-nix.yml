@@ -1,10 +1,12 @@
-name: Scala
+name: sbt-nix-derivation
 
 on:
-  pull_request: {}
   push:
     branches:
       - master
+    paths:
+      - "nix/pkgs.nix"
+      - "nix/sbt.nix"
 
 jobs:
   build:
@@ -19,9 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.2
 
-      - name: "Cache for sbt & coursier ♨️"
-        uses: coursier/cache-action@v4.1
-
       - name: "Install Nix ❄️"
         uses: nixbuild/nix-quick-install-action@v2
 
@@ -31,5 +30,5 @@ jobs:
           name: $cachix_name$
           signingKey: "\${{ secrets.CACHIX_SIGNING_KEY }}"
 
-      - name: "Run with \${{ matrix.java }} 🚀"
-        run: nix-shell --argstr jdk "\${{ matrix.java }}" --run "sbt compile" nix/ci.nix
+      - name: "Build sbt derivation with \${{ matrix.java }} 🚀"
+        run: nix-build --argstr jdk "\${{ matrix.java }}" nix/sbt.nix | cachix push $cachix_name$
