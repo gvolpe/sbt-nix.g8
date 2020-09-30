@@ -98,7 +98,7 @@ Nowadays, most Scala projects are deployed as a Docker image (sometimes using Ku
 
 - we get to use the exact same JDK / JRE we declare in our Nix file.
 - we will more likely get a smaller image than using a base slim one from Docker Hub.
-- we will have a reproducible image.
+- we will have a reproducible image (no more `apt-get update`s, please!).
 
 We can still use `sbt-native-packaer` to create our Docker images, as demonstrated in the examples below. Another option is to use `sbt-assembly` and some declarative definition of our Dockerfile.
 
