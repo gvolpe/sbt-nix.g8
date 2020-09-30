@@ -142,6 +142,8 @@ in
   }
 ```
 
+Note: We are using `adoptopenjdk-jre-openj9-bin-11` here whereas for the default image we use `openjdk:11.0.8-jre-slim` but really, I couldn't find an image for the same JRE on Docker Hub, only for the JDK (if you do please let me know to update the document).
+
 Run it as follows:
 
 ```
@@ -151,7 +153,7 @@ sbt "sbt-nix-native-custom/docker:publishLocal"
 docker run -it sbt-nix-bootstrap-custom:0.1.0-SNAPSHOT
 ```
 
-The resulting Docker image is 42MB smaller than the default!
+The resulting Docker image is 42MB smaller than the default! (with the caveat of the JREs not being the same).
 
 ```
 REPOSITORY                  TAG                            IMAGE ID            CREATED             SIZE
