@@ -49,11 +49,11 @@ curl -L https://nixos.org/nix/install | sh
 
 ## Use cases
 
-There three clear use cases where I think Nix can make a difference in Scala projects.
+There are three clear use cases where I think Nix can make a difference in Scala projects.
 
 ### Reproducible development shell
 
-All the project's dependencies are declared in a `shell.nix` file. For example, `jdk`, `sbt`, `coursier`, and `jekyll` (if a microsite depends on it).
+All the project's dependencies are declared in a `shell.nix` file. For example, `jdk`, `sbt` and `coursier` (maybe also  `jekyll`, if a microsite depends on it).
 
 ```nix
 { jdk ? "jdk11" }:
@@ -70,17 +70,17 @@ in
   }
 ```
 
-Where `pkgs.nix` defines an *exact* version of the Nixpkgs (more on this later). The important part is that every member of the team will have access to the exact same packages.
+Where `pkgs.nix` defines an *exact* version of the Nixpkgs (more on this [later](#pinning-nixpkgs)). The important part is that every member of the team will have access to the exact same packages.
 
 **Avoid global installation of Java, Sbt & any other binary**
 
 > Instead of installing binaries from the web, let Nix manage your dependencies. This is crucial when working in big teams. We will no longer hear "it compiles on my machine".
 
-The benefit is even greater if you work on cross-teams where everybody shares the same `shell.nix` to run the full application. For example, at work we declare all the dependencies for frontend, backend and infrastructure such as `jdk`, `nodejs` and `kubectl`, among others.
+The benefit is even greater when you work on diverse teams where everybody shares the same `shell.nix` to run the full application. For example, at work we declare all the dependencies for frontend, backend and infrastructure such as `jdk`, `nodejs` and `kubectl`, among others.
 
 It is very appealing for new members joining the team! On day one, all they need to do is to git-clone the project, install Nix, run `nix-shell` and all the project's dependencies will become available. Isn't that great?
 
-We can also use [nix-direnv](https://github.com/nix-community/nix-direnv) so that we don't even need to run `nix-shell`. Upon entering a working directory with a `shell.nix`, all the declared software will become automatically available. Magic! In fairness, this is what we promote using at work.
+We can also use [nix-direnv](https://github.com/nix-community/nix-direnv) so that we don't even need to run `nix-shell` every time. Upon entering a working directory with a `shell.nix`, all the declared software will become automatically available. Feels like magic! Actually, this is what we promote using at work.
 
 ### Reproducible CI builds
 
@@ -94,9 +94,15 @@ In fairness, we use `nix/ci.nix` to run the CI build, which is a version of `she
 
 ### Reproducible (and smaller) Docker images
 
-Most of Scala projects nowadays are deployed as a Docker image (sometimes using Kubernetes). Although there are tools such as `sbt-native-packager`, we can again declare what dependencies make it to our Docker image. The clear two benefits is that we get to use the exact same JDK / JRE we declare in our Nix file, and that the resulting image will more likely be smaller than using a base slim image from Docker Hub.
+Nowadays, most Scala projects are deployed as a Docker image (sometimes using Kubernetes). Although there are tools such as `sbt-native-packager`, we can again declare what dependencies make it to our Docker image. There are some immediate benefits in doing this:
+
+- we get to use the exact same JDK / JRE we declare in our Nix file.
+- we will more likely get a smaller image than using a base slim one from Docker Hub.
+- we will have a reproducible image.
 
 We can still use `sbt-native-packaer` to create our Docker images, as demonstrated in the examples below. Another option is to use `sbt-assembly` and some declarative definition of our Dockerfile.
+
+Note: the three examples shown below can be found under the `modules` folder. Feel free to clone the repo and play around with them.
 
 #### Default Docker image using sbt-native-packager
 
@@ -114,15 +120,15 @@ REPOSITORY                  TAG                            IMAGE ID            C
 sbt-nix-bootstrap-default   0.1.0-SNAPSHOT                 c0320ed1b643        2 minutes ago       221MB
 ```
 
-This is the default and it doesn't use Nix at all.
+This is the default and *it doesn't use Nix at all*.
 
 #### Custom Nix Docker image using sbt-native-packager
 
-We could benefit from Nix by creating a base Docker image using the *exact same `jdk`* we declare in our project, and still use `sbt-native-packager` to make the final image.
+We could benefit from Nix by creating a base Docker image using the *exact same `jre`* we declare in our project, and still use `sbt-native-packager` to make the final image.
 
 ```nix
 { imgName ? "base-jre"
-, jdk ? "adoptopenjdk-openj9-bin-11"
+, jdk ? "jdk11"
 , jre ? "adoptopenjdk-jre-openj9-bin-11"
 }:
 
@@ -153,7 +159,7 @@ sbt-nix-bootstrap-custom    0.1.0-SNAPSHOT                 94e713b3fa0d        6
 base-jre                    latest                         58028d3adc50        50 years ago        163MB
 ```
 
-Note: `base-jre` shows it was created 50 years ago but we can change that by adding a `created = "now"` to our image definition. However, by doing so, we would be breaking binary reproducibility.
+Note: `base-jre` shows it was created 50 years ago but we can change that by adding `created = "now"` to our image definition. However, by doing so, we would be breaking binary reproducibility.
 
 Learn more about creating Docker images with Nix at https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-dockerTools
 
@@ -173,7 +179,7 @@ Then we will create a shell-script with Nix.
 
 ```nix
 { imgName ? "sbt-nix-assembly"
-, jdk ? "adoptopenjdk-openj9-bin-11"
+, jdk ? "jdk11"
 , jre ? "adoptopenjdk-jre-openj9-bin-11"
 }:
 
@@ -223,7 +229,7 @@ base-jre                    latest                         58028d3adc50        5
 
 In previous Nix files, we were referencing a file named `pkgs.nix`. This is where we define what version on Nixpkgs we want to use in our project.
 
-Whenever you install Nix, you'll have something called [channels](https://nixos.wiki/wiki/Nix_channels). Using Channels is not recommended because it goes against reproducible builds but they are useful to try things out on Nix. So instead of using a channel, we will "pin" the Nixpkgs to a specific version, indicated by a URL and a hash (`sha256`).
+Whenever you install Nix, you'll have something called [channels](https://nixos.wiki/wiki/Nix_channels). Using Channels is not recommended because it goes against reproducible builds but they are useful to try things out with Nix. So instead of using a channel, we will "pin" the Nixpkgs to a specific version, indicated by a URL and a SHA256 hash.
 
 ```nix
 { jdk }:
@@ -284,7 +290,7 @@ In fact, this is what we do in the CI build to get `sbt` to run our project with
 
 ## Caching sbt derivations
 
-Nix derivations normally result in a binary, and `sbt` is not an exception. Since we override the default JDK version, every binary result is different, and so it can be cached so you don't have to build it again (and neither does the CI build). We can build the derivation via `nix-build`.
+Nix derivations normally result in a binary, and `sbt` is not an exception. Since we override the default JDK version, every binary result is different, and so it can be cached so you don't have to build it again (and neither does the CI build). We can build the derivation via `nix-build` (the binary will be available by default under `result/bin/sbt`).
 
 ```shell
 > nix-build nix/sbt.nix
@@ -297,7 +303,7 @@ Nix derivations normally result in a binary, and `sbt` is not an exception. Sinc
 /nix/store/fiqmv96y4m9bmyaw84wp7jpx2i8kkwgy-sbt-1.3.13
 ```
 
-Notice how every hash is different. The binary will be available by default under `result/bin/sbt`.
+Notice how every hash is different when using different JDKs.
 
 There is a free service for open-source projects named [Cachix](https://cachix.org/), including support for [Github actions](https://github.com/cachix/cachix-action), where we can upload our binaries (result of a Nix derivation) so then everyone else can benefit from not having to build it again.
 
@@ -319,11 +325,11 @@ with:
 
 You can do the same, just make sure you change `neutron` for the name of your cache (creating one is free).
 
-We have seen how the `sbt` binary can be cached, though, this applies to any other binary. So next time you come across a derivation that results in a binary, know that you can cache it so your peers don't have to re-build it in their machines.
+We have seen how the `sbt` binary can be cached, though, this applies to any other binary. So next time you come across a derivation that results in a binary, know that you can cache it so your peers don't have to re-build it on their machines, and neither does the CI build!
 
 ## Get started with sbt-nix.g8
 
-We recommended above to not install `sbt` globally. However, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
+A bit earlier, it was recommended to not install `sbt` globally. However, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
 
 So to get started, this is all we need.
 
