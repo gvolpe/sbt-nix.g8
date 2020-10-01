@@ -229,7 +229,7 @@ base-jre                    latest                         58028d3adc50        5
 
 ## Pinning Nixpkgs
 
-In previous Nix files, we were referencing a file named `pkgs.nix`. This is where we define what version on Nixpkgs we want to use in our project.
+In previous Nix files, we were referencing a file named `pkgs.nix`. This is where we define what version of Nixpkgs we want to use in our project.
 
 Whenever you install Nix, you'll have something called [channels](https://nixos.wiki/wiki/Nix_channels). Using Channels is not recommended because it goes against reproducible builds but they are useful to try things out with Nix. So instead of using a channel, we will "pin" the Nixpkgs to a specific version, indicated by a URL and a SHA256 hash.
 
@@ -331,7 +331,7 @@ We have seen how the `sbt` binary can be cached, though, this applies to any oth
 
 ## Get started with sbt-nix.g8
 
-A bit earlier, it was recommended to not install `sbt` globally. However, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
+New Scala projects using `sbt` are usually created using `g8` templates by running `sbt new template.g8`. However, a bit earlier it was recommended to not install `sbt` globally. So, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
 
 So to get started, this is all we need.
 
