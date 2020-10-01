@@ -29,7 +29,7 @@ I started out writing this guide with examples after I ran a Twitter poll on Sep
 
 ![poll](imgs/poll.png)
 
-The results speak for themselves but I am on a mission to change the current situation because I believe Nix and functional programming are the way forward. If you would like to help, share this guide with as many people as you can, give it a ⭐ and spread the good word!
+The results speak for themselves but **I am on a mission to change the current situation** because I believe Nix and functional programming are the way forward. If you would like to help, share this guide with as many people as you can, give it a ⭐ and spread the good word!
 
 ## What is Nix?
 
