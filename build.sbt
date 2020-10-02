@@ -38,7 +38,8 @@ lazy val root = (project in file("."))
   .aggregate(
     `sbt-nix-assembly`,
     `sbt-nix-native-custom`,
-    `sbt-nix-native-default`
+    `sbt-nix-native-default`,
+    `sbt-nix-derivation`
   )
 
 lazy val `sbt-nix-assembly` = (project in file("modules/assembly"))
@@ -74,4 +75,14 @@ lazy val `sbt-nix-native-default` = (project in file("modules/native-default"))
     )
   )
   .settings(defaultDockerSettings: _*)
+  .settings(licenseSettings: _*)
+
+lazy val `sbt-nix-derivation` = (project in file("modules/nixified"))
+  .enablePlugins(JavaAppPackaging)
+  .settings(
+    libraryDependencies ++= Seq(
+      catsCore,
+      scalaTest % Test
+    )
+  )
   .settings(licenseSettings: _*)

@@ -17,9 +17,11 @@ Get started with Nix and see how you can benefit from it in your Scala or cross-
 * [Pinning Nixpkgs](#pinning-nixpkgs)
    * [Using sbt with a different JDK](#using-sbt-with-a-different-jdk)
 * [Caching sbt derivations](#caching-sbt-derivations)
+* [Managing dependencies (jars) with Nix](#managing-dependencies-jars-with-nix)
+   * [sbt-derivation](#sbt-derivation)
 * [Get started with sbt-nix.g8](#get-started-with-sbt-nixg8)
 
-<!-- Added by: gvolpe, at: Tue 29 Sep 2020 10:46:21 AM CEST -->
+<!-- Added by: gvolpe, at: Fri 02 Oct 2020 03:04:04 PM CEST -->
 
 <!--te-->
 
@@ -231,7 +233,7 @@ base-jre                    latest                         58028d3adc50        5
 
 In previous Nix files, we were referencing a file named `pkgs.nix`. This is where we define what version of Nixpkgs we want to use in our project.
 
-Whenever you install Nix, you'll have something called [channels](https://nixos.wiki/wiki/Nix_channels). Using Channels is not recommended because it goes against reproducible builds but they are useful to try things out with Nix. So instead of using a channel, we will "pin" the Nixpkgs to a specific version, indicated by a URL and a SHA256 hash.
+Whenever you install Nix, you'll have something called [channels](https://nixos.wiki/wiki/Nix_channels). Using Channels is not recommended because it goes against reproducible builds but they are useful to try things out with Nix. So instead of using a channel, we will "pin" the Nixpkgs to a specific version, indicated by a URL and a SHA256 hash. In a nutshell, it looks as follows:
 
 ```nix
 { jdk }:
@@ -255,6 +257,8 @@ let
 in
   pkgs
 ```
+
+> In practice, though, `nixpkgs` is defined at `nix/pinned.nix` and `config` is defined at `nix/config.nix` for modularity.
 
 Let's explain what's going on here.
 
@@ -328,6 +332,58 @@ with:
 You can do the same, just make sure you change `neutron` for the name of your cache (creating one is free).
 
 We have seen how the `sbt` binary can be cached, though, this applies to any other binary. So next time you come across a derivation that results in a binary, know that you can cache it so your peers don't have to re-build it on their machines, and neither does the CI build!
+
+## Managing dependencies (jars) with Nix
+
+There were a few attempts to go full Nix:
+
+- [sbt2nix](https://github.com/charleso/sbt2nix)
+- [sbtix](https://gitlab.com/teozkr/Sbtix)
+
+Unfortunately, both projects seem abandoned. It is also worth noticing that these projects are very ambitious and Nixifying an entire Scala project is not a trivial task.
+
+### sbt-derivation
+
+There is another active project named [sbt-derivation](https://github.com/zaninime/sbt-derivation), which is not as ambitious as the others but it does what it promises. It basically creates two derivations: one for all the jar dependencies and another one for the project. The former derivation is identified by a `depsHash256`, so if we add a new dependency, the hash will change and it will fail the build if we forget to update the hash.
+
+The project under `modules/nixified` showcases the usage of `sbt-derivation` with `sbt-assembly`, the default building mechanism. The project is defined as follows:
+
+```nix
+{ jdk ? "jdk11" }:
+
+let
+  pinned = import nix/pinned.nix;
+  config = import nix/config.nix { inherit jdk; };
+  sbtix  = import pinned.sbt-derivation;
+  pkgs   = import pinned.nixpkgs {
+    inherit config;
+    overlays = [ sbtix ];
+  };
+in
+pkgs.sbt.mkDerivation {
+  pname = "sbt-nixified";
+  version = "1.0.0";
+
+  depsSha256 = "02xxc6fy73v1m2awmavca7lgyr06fhjyg3q2q08cxr6nmy1s4b23";
+
+  src = ./.;
+
+  buildPhase = ''
+    sbt "sbt-nix-derivation/assembly"
+  '';
+
+  installPhase = ''
+    cp modules/nixified/target/scala-*/*-assembly-*.jar $out
+  '';
+}
+```
+
+It can be found in the `app.nix` file, at the root of the repository. To build it and run it, use the following commands:
+
+```shell
+nix-build app.nix -o result-jar
+java -jar result-jar
+```
 
 ## Get started with sbt-nix.g8
 
