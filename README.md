@@ -385,6 +385,8 @@ nix-build app.nix -o result-jar
 java -jar result-jar
 ```
 
+The file `default.nix` defines a similar build for `modules/wrapper` but it uses `sbt-native-packager` and it creates a binary wrapper as the output instead of just creating a jar.
+
 ## Get started with sbt-nix.g8
 
 New Scala projects using `sbt` are usually created using `g8` templates by running `sbt new template.g8`. However, a bit earlier it was recommended to not install `sbt` globally. So, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.

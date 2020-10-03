@@ -39,7 +39,8 @@ lazy val root = (project in file("."))
     `sbt-nix-assembly`,
     `sbt-nix-native-custom`,
     `sbt-nix-native-default`,
-    `sbt-nix-derivation`
+    `sbt-nix-derivation`,
+    `sbt-nix-wrapper`
   )
 
 lazy val `sbt-nix-assembly` = (project in file("modules/assembly"))
@@ -79,6 +80,17 @@ lazy val `sbt-nix-native-default` = (project in file("modules/native-default"))
 
 lazy val `sbt-nix-derivation` = (project in file("modules/nixified"))
   .enablePlugins(JavaAppPackaging)
+  .settings(
+    libraryDependencies ++= Seq(
+      catsCore,
+      scalaTest % Test
+    )
+  )
+  .settings(licenseSettings: _*)
+
+lazy val `sbt-nix-wrapper` = (project in file("modules/wrapper"))
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(UniversalPlugin)
   .settings(
     libraryDependencies ++= Seq(
       catsCore,
