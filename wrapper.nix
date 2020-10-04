@@ -18,11 +18,8 @@ sbt.mkDerivation rec {
   pname = "sbt-nix-wrapper";
   version = "1.0.0";
 
-  # FIXME: this works on the CI build
+  # make sure to delete all the `target` folders, including those under each module: `modules/.../target`
   depsSha256 = "09ngvlazgfxandg4ajh4lj53gyccdayjlj1rn100jfjm8cpg5nkv";
-
-  # this works locally
-  #depsSha256 = "14amzb02cb1vqknkw6kf0az5b9f1b5mbk2yj7s88rmm2rnps2l3w";
 
   nativeBuildInputs = [ pkgs.makeWrapper ];
 
