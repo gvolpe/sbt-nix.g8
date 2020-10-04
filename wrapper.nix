@@ -11,25 +11,33 @@ let
   };
   java = pkgs.${jdk};
   mainClass = "demo.Hello";
+  inherit (pkgs) sbt makeWrapper;
+  inherit (pkgs.lib) escapeShellArg sourceByRegex;
 in
-pkgs.sbt.mkDerivation rec {
+sbt.mkDerivation rec {
   pname = "sbt-nix-wrapper";
   version = "1.0.0";
 
-  depsSha256 = "1n5zk4n14qlcr1lzjn7hcvz6iixjknhvl024qpx46jdk6mf2dh1c";
+  depsSha256 = "14amzb02cb1vqknkw6kf0az5b9f1b5mbk2yj7s88rmm2rnps2l3w";
 
   nativeBuildInputs = [ pkgs.makeWrapper ];
 
-  src = ./.;
+  src = sourceByRegex ./. [
+    "^project$"
+    "^project/.*$"
+    "^modules/wrapper/src$"
+    "^modules/wrapper/src/.*$"
+    "^build.sbt$"
+  ];
 
   buildPhase = ''
-    sbt "sbt-nix-derivation/stage"
+    sbt "sbt-nix-wrapper/stage"
   '';
 
   installPhase = ''
     mkdir -p $out/{bin,lib}
     cp -ar modules/wrapper/target/universal/stage/lib $out/lib/${pname}
     makeWrapper ${java}/bin/java $out/bin/${pname} \
-      --add-flags "-cp '$out/lib/${pname}/*' ${pkgs.lib.escapeShellArg mainClass}"
+      --add-flags "-cp '$out/lib/${pname}/*' ${escapeShellArg mainClass}"
   '';
 }

@@ -385,7 +385,7 @@ nix-build app.nix -o result-jar
 java -jar result-jar
 ```
 
-The file `default.nix` defines a similar build for `modules/wrapper` but it uses `sbt-native-packager` and it creates a binary wrapper as the output instead of just creating a jar.
+The `wrapper.nix` file defines a similar build for `modules/wrapper` but it uses `sbt-native-packager` and it creates a binary wrapper as the output instead of just creating a jar.
 
 ## Get started with sbt-nix.g8
 

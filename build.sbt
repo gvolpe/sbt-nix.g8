@@ -39,8 +39,7 @@ lazy val root = (project in file("."))
     `sbt-nix-assembly`,
     `sbt-nix-native-custom`,
     `sbt-nix-native-default`,
-    `sbt-nix-derivation`,
-    `sbt-nix-wrapper`
+    `sbt-nix-derivation`
   )
 
 lazy val `sbt-nix-assembly` = (project in file("modules/assembly"))
