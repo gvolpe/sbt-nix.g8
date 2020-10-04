@@ -18,7 +18,11 @@ sbt.mkDerivation rec {
   pname = "sbt-nix-wrapper";
   version = "1.0.0";
 
-  depsSha256 = "14amzb02cb1vqknkw6kf0az5b9f1b5mbk2yj7s88rmm2rnps2l3w";
+  # FIXME: this works on the CI build
+  depsSha256 = "09ngvlazgfxandg4ajh4lj53gyccdayjlj1rn100jfjm8cpg5nkv";
+
+  # this works locally
+  #depsSha256 = "14amzb02cb1vqknkw6kf0az5b9f1b5mbk2yj7s88rmm2rnps2l3w";
 
   nativeBuildInputs = [ pkgs.makeWrapper ];
 
