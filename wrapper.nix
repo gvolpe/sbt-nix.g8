@@ -26,8 +26,9 @@ sbt.mkDerivation rec {
   src = sourceByRegex ./. [
     "^project$"
     "^project/.*$"
-    "^modules/wrapper/src$"
-    "^modules/wrapper/src/.*$"
+    "^modules$"
+    "^modules/wrapper$"
+    "^modules/wrapper/.*$"
     "^build.sbt$"
   ];
 
