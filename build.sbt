@@ -86,3 +86,14 @@ lazy val `sbt-nix-derivation` = (project in file("modules/nixified"))
     )
   )
   .settings(licenseSettings: _*)
+
+lazy val `sbt-nix-wrapper` = (project in file("modules/wrapper"))
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(UniversalPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      catsCore,
+      scalaTest % Test
+    )
+  )
+  .settings(licenseSettings: _*)
