@@ -32,8 +32,6 @@ Running `nix-build` will pick up `default.nix`, which uses [sbt-derivation](http
 > nix-build
 ```
 
-> Note: on the first run, you'll get an error. Make sure you update the `depsSha256` value with Nix's suggestion.
-
 Run the binary as follows.
 
 ```shell

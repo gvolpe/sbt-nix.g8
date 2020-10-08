@@ -17,8 +17,7 @@ sbt.mkDerivation rec {
   pname = "sbt-nix-$name$";
   version = "1.0.0";
 
-  # update this value with whatever Nix suggests after running `nix-build`
-  depsSha256 = "0000000000000000000000000000000000000000000000000000";
+  depsSha256 = "1wdpa8nws65yy71s8p6h5f4brf0hk32b7dwvl176f4pkc8a1afk4";
 
   depsWarmupCommand = ''
     sbt compile
