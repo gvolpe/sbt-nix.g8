@@ -40,7 +40,7 @@ sbt.mkDerivation rec {
 
   installPhase = ''
     mkdir -p \$out/{bin,lib}
-    cp -ar modules/wrapper/target/universal/stage/lib \$out/lib/${pname}
+    cp -ar modules/wrapper/target/universal/stage/lib \$out/lib/\${pname}
     makeWrapper \${java}/bin/java \$out/bin/\${pname} \
       --add-flags "-cp '\$out/lib/\${pname}/*' \${escapeShellArg mainClass}"
   '';
