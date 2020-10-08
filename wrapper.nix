@@ -19,7 +19,11 @@ sbt.mkDerivation rec {
   version = "1.0.0";
 
   # make sure to delete all the `target` folders, including those under each module: `modules/.../target`
-  depsSha256 = "09ngvlazgfxandg4ajh4lj53gyccdayjlj1rn100jfjm8cpg5nkv";
+  depsSha256 = "02xxc6fy73v1m2awmavca7lgyr06fhjyg3q2q08cxr6nmy1s4b23";
+
+  depsWarmupCommand = ''
+    sbt "sbt-nix-wrapper/compile"
+  '';
 
   nativeBuildInputs = [ pkgs.makeWrapper ];
 

@@ -6,8 +6,8 @@
   };
 
   sbt-derivation = fetchTarball {
-    name   = "sbt-derivation-2020-09-29";
-    url    = "https://github.com/zaninime/sbt-derivation/archive/cf4b0c3bb930578c88f542e34ba862f16e711f97.tar.gz";
-    sha256 = "1c4dxcm2vrzm9fb23nh33i62j8lks9nffmfr0g7iyf58cyamwah5";
+    name   = "sbt-derivation-2020-10-08";
+    url    = "https://github.com/zaninime/sbt-derivation/archive/9666b2b.tar.gz";
+    sha256 = "17r74avh4i3llxbskfjhvbys3avqb2f26pzydcdkd8a9k204rg9z";
   };
 }
