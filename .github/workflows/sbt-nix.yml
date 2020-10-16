@@ -5,8 +5,7 @@ on:
     branches:
       - master
     paths:
-      - "nix/pkgs.nix"
-      - "nix/sbt.nix"
+      - "nix/**"
 
 jobs:
   build:
