@@ -3,6 +3,7 @@
 Get started with Nix and see how you can benefit from it in your Scala or cross-team projects.
 
 <!--ts-->
+* [Get started with sbt-nix.g8](#get-started-with-sbt-nixg8)
 * [Motivation](#motivation)
 * [What is Nix?](#what-is-nix)
 * [Install Nix](#install-nix)
@@ -19,11 +20,32 @@ Get started with Nix and see how you can benefit from it in your Scala or cross-
 * [Caching sbt derivations](#caching-sbt-derivations)
 * [Managing dependencies (jars) with Nix](#managing-dependencies-jars-with-nix)
    * [sbt-derivation](#sbt-derivation)
-* [Get started with sbt-nix.g8](#get-started-with-sbt-nixg8)
 
 <!-- Added by: gvolpe, at: Fri 02 Oct 2020 03:04:04 PM CEST -->
 
 <!--te-->
+
+## Get started with sbt-nix.g8
+
+New Scala projects using `sbt` are usually created using `g8` templates by running `sbt new template.g8`. However, a bit earlier it was recommended to not install `sbt` globally. So, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
+
+So to get started, this is all we need.
+
+```shell
+nix-shell -p sbt
+sbt new gvolpe/sbt-nix.g8
+```
+
+You can actually do it in a single command.
+
+```shell
+nix-shell -p sbt --run "sbt new gvolpe/sbt-nix.g8"
+```
+
+Once we have created the project, follow the instructions in the README file to continue.
+
+**Note**: the default template follows the approach demonstrated with the example `sbt-nix-native-custom` (recommended) as well as using `sbt-derivation` to build a binary as an alternative, but you can also checkout this repository and play around with the different examples.
+
 
 ## Motivation
 
@@ -386,24 +408,3 @@ java -jar result-jar
 ```
 
 The `wrapper.nix` file defines a similar build for `modules/wrapper` but it uses `sbt-native-packager` and it creates a binary wrapper as the output instead of just creating a jar.
-
-## Get started with sbt-nix.g8
-
-New Scala projects using `sbt` are usually created using `g8` templates by running `sbt new template.g8`. However, a bit earlier it was recommended to not install `sbt` globally. So, if that's the case, how do we create a new project via `sbt new`? The answer is simple: `nix-shell -p sbt`. This command will start a new shell with the `sbt` package available. You can ask for more packages, if desired.
-
-So to get started, this is all we need.
-
-```shell
-nix-shell -p sbt
-sbt new gvolpe/sbt-nix.g8
-```
-
-You can actually do it in a single command.
-
-```shell
-nix-shell -p sbt --run "sbt new gvolpe/sbt-nix.g8"
-```
-
-Once we have created the project, follow the instructions in the README file to continue.
-
-**Note**: the default template follows the approach demonstrated with the example `sbt-nix-native-custom` (recommended) as well as using `sbt-derivation` to build a binary as an alternative, but you can also checkout this repository and play around with the different examples.
