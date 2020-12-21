@@ -23,10 +23,10 @@ jobs:
         uses: coursier/cache-action@v4.1
 
       - name: "Install Nix ❄️"
-        uses: nixbuild/nix-quick-install-action@v2
+        uses: cachix/install-nix-action@v12
 
       - name: "Install Cachix ❄️"
-        uses: cachix/cachix-action@v6
+        uses: cachix/cachix-action@v8
         with:
           name: $cachix_name$
           signingKey: "\${{ secrets.CACHIX_SIGNING_KEY }}"
