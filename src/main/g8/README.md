@@ -15,6 +15,7 @@ Note: in order to create the `base-jre`, you also need to have Docker installed 
 ```shell
 > nix-build nix/docker.nix -o result-base-jre
 > docker load < result-base-jre
+> nix-shell
 > sbt "docker:publishLocal"
 ```
 
