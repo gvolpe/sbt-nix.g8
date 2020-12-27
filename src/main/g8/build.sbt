@@ -21,8 +21,9 @@ lazy val root = (project in file("."))
   .settings(
     licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
     libraryDependencies ++= Seq(
-      catsCore,
-      scalaTest % Test
+      fs2Core,
+      munitCore % Test,
+      munitScalaCheck % Test
     )
   )
   .settings(nixDockerSettings: _*)
