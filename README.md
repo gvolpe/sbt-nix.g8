@@ -3,6 +3,7 @@
 Get started with Nix and see how you can benefit from it in your Scala or cross-team projects.
 
 <!--ts-->
+* [Quick start](#quick-start)
 * [Motivation](#motivation)
 * [What is Nix?](#what-is-nix)
 * [Install Nix](#install-nix)
@@ -24,6 +25,16 @@ Get started with Nix and see how you can benefit from it in your Scala or cross-
 <!-- Added by: gvolpe, at: Fri 02 Oct 2020 03:04:04 PM CEST -->
 
 <!--te-->
+
+## Quick start
+
+If you're familiar with nix and have it installed, you can create a new project using this template:
+
+```shell
+nix-shell -p sbt --run "sbt new gvolpe/sbt-nix.g8"
+```
+
+Then follow the instructions in the README file inside the generated project's directory.
 
 ## Motivation
 
