@@ -275,7 +275,7 @@ Let's explain what's going on here.
 
 - `fetchTarball` is one of the [many built-in functions](https://nixos.org/manual/nix/stable/#ssec-builtins).
 - `url` will always be the same, except for the last part. That `72b9660dc18b` is a commit hash. To find out the latest, you can look [here](https://status.nixos.org/).
-- `sha256` is calculated from the `tar.gz` file. You can run `nix-prefetch --unpack [URL]` to get it.
+- `sha256` is calculated from the `tar.gz` file. You can run `nix-prefetch-url --unpack [URL]` to get it.
 
 We also have a `config` that overrides the `sbt` package to use the `jdk` version given as an argument. `sbt` comes with a default `jdk` version by default.
 
