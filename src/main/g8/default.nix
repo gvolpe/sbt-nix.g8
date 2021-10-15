@@ -18,10 +18,7 @@ sbt.mkDerivation {
   inherit pname;
   version = "1.0.0";
 
-  depsSha256 =
-    if builtins.currentSystem == "x86_64-linux" then "1wdpa8nws65yy71s8p6h5f4brf0hk32b7dwvl176f4pkc8a1afk4"
-    else if builtins.currentSystem == "x86_64-darwin" then "16zali9b9qhpi7kv69dwflbyiw6z6l0f66n5q3zk76c6rnrzqzy9"
-    else throw "Unsupported system";
+  depsSha256 = "16zali9b9qhpi7kv69dwflbyiw6z6l0f66n5q3zk76c6rnrzqzy9";
 
   depsWarmupCommand = ''
     sbt compile
